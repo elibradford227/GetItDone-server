@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using GetItDone.models;
 using System.Security.Claims;
+using GetItDone.services;
 
 namespace GetItDone.Controllers
 {
@@ -14,15 +15,11 @@ namespace GetItDone.Controllers
     [Authorize(AuthenticationSchemes = "Identity.Application")]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
 
-        // Injected for now in case of future need
-        private readonly GetItDoneDbContext _dbContext;
-        private UserManager<User> _userManager;
-
-        public UserController(GetItDoneDbContext context, UserManager<User> userManager)
+        public UserController(IUserService userService)
         {
-            _dbContext = context;
-            _userManager = userManager;
+            _userService = userService;
         }
 
         [HttpGet("{Id}")]
@@ -35,7 +32,7 @@ namespace GetItDone.Controllers
 
             try
             {
-                User? user = await _userManager.FindByIdAsync(Id);
+                User? user = await _userService.FetchUser(Id);
                 return Ok(user);
             }
             catch (Exception ex)
@@ -56,7 +53,7 @@ namespace GetItDone.Controllers
 
             try
             {
-                User? user = await _userManager.FindByIdAsync(userId);
+                User? user = await _userService.FetchUser(userId);
                 if (user == null)
                 {
                     return NotFound("User not found.");
