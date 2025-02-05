@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using GetItDone.models;
 using Microsoft.EntityFrameworkCore;
+using GetItDone.services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme)
     .AddBearerToken(IdentityConstants.BearerScheme);
