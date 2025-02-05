@@ -30,15 +30,7 @@ namespace GetItDone.Controllers
                 return BadRequest("User id is required.");
             }
 
-            try
-            {
-                User? user = await _userService.FetchUser(Id);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return await GetUserByIdInternal(Id);
         }
 
         [HttpGet("me")]
@@ -51,6 +43,10 @@ namespace GetItDone.Controllers
                 return Unauthorized("User is not authenticated.");
             }
 
+            return await GetUserByIdInternal(userId);
+        }
+        private async Task<IActionResult> GetUserByIdInternal(string userId)
+        {
             try
             {
                 User? user = await _userService.FetchUser(userId);
@@ -66,4 +62,5 @@ namespace GetItDone.Controllers
             }
         }
     }
+
 }
