@@ -23,19 +23,8 @@ namespace GetItDone.services
         }
         public async Task<User> FetchUser(string userId)
         {
-            try
-            {
-                User? user = await _userManager.FindByIdAsync(userId);
-                if (user == null)
-                {
-                    throw new KeyNotFoundException("User not found.");
-                }
-                return user;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("An error occurred while fetching the user.", ex);
-            }
+             User? user = await _userManager.FindByIdAsync(userId);
+             return user;
         }
     }
 }

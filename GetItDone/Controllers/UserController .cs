@@ -47,19 +47,12 @@ namespace GetItDone.Controllers
         }
         private async Task<IActionResult> GetUserByIdInternal(string userId)
         {
-            try
+            User? user = await _userService.FetchUser(userId);
+            if (user == null)
             {
-                User? user = await _userService.FetchUser(userId);
-                if (user == null)
-                {
                     return NotFound("User not found.");
-                }
-                return Ok(user);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return Ok(user);
         }
     }
 
