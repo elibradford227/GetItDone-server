@@ -27,7 +27,7 @@ namespace GetItDone.Controllers
         {
             if (string.IsNullOrEmpty(Id))
             {
-                return BadRequest("User id is required.");
+                return BadRequest(new { message = "UserId is required." });
             }
 
             return await GetUserByIdInternal(Id);
@@ -40,17 +40,17 @@ namespace GetItDone.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                return Unauthorized("User is not authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
             }
 
-            return await GetUserByIdInternal(userId);
+            return await GetUserByIdInternal(userId); 
         }
         private async Task<IActionResult> GetUserByIdInternal(string userId)
         {
             User? user = await _userService.FetchUser(userId);
             if (user == null)
             {
-                    return NotFound("User not found.");
+                    return NotFound(new { message = "User not found." });
             }
             return Ok(user);
         }
