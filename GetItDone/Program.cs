@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using GetItDone.models;
 using Microsoft.EntityFrameworkCore;
 using GetItDone.services;
+using GetItDone.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,9 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddDbContext<GetItDoneDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("GetItDoneDbConnectionString")));
 
@@ -57,6 +61,8 @@ app.MapIdentityApi<User>();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 
