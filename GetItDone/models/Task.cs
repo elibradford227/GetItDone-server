@@ -12,8 +12,12 @@ namespace GetItDone.models
         [Required]
         public string Status { get; set; }
         [Required]
+        public int Ownerid { get; set; }
+        [Required]
+        public User Owner { get; set; }
+        [Required]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? DueDate { get; set; }
-        public List<User>? Assignees { get; set; } = new List<User>();
+        public List<UserTask>? Assignees { get; set; } = new List<UserTask>();
     }
 }

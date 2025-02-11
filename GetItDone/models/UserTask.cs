@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GetItDone.models
 {
@@ -6,16 +7,13 @@ namespace GetItDone.models
     {
         [Required]
         public int Id { get; set; }
-        [Required]
-        public int Ownerid { get; set; }
-        [Required]
-        public User Owner { get; set; }
-        [Required]
+        [ForeignKey("Task")]
+
         public int TaskId { get; set; }
         [Required]
         public Task Task { get; set; }
-        [Required]
-        public int UserId { get; set; }
+        [ForeignKey("User")]
+        public string UserId { get; set; }
         [Required]
         public User User { get; set; }
     }
