@@ -45,6 +45,7 @@ namespace GetItDone.Controllers
 
             return await GetUserByIdInternal(userId); 
         }
+
         private async Task<IActionResult> GetUserByIdInternal(string userId)
         {
             User? user = await _userService.FetchUser(userId);
@@ -55,5 +56,4 @@ namespace GetItDone.Controllers
             return Ok(user);
         }
     }
-
 }
