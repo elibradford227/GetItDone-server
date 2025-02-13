@@ -46,6 +46,20 @@ namespace GetItDone.Controllers
             return await GetUserByIdInternal(userId); 
         }
 
+        [HttpGet("tasks/{id}")]
+        public async Task<IActionResult> GetUserWithTasks(string id)
+        {
+            UserDTO user = await _userService.FetchUserWithTasks(id);
+
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            var userDto = _mapper.Map<UserDTO>(user);
+            return Ok(userDto);
+        }
+
         private async Task<IActionResult> GetUserByIdInternal(string userId)
         {
             User? user = await _userService.FetchUser(userId);

@@ -8,7 +8,9 @@ namespace GetItDone.Data
     {
         public AutoMapperProfiles()
         {
-            //CreateMap<Task, TaskDTO>();
+            CreateMap<models.Task, TaskDTO>();
+            CreateMap<UserTask, UserTaskDTO>();
+
             CreateMap<User, UserDTO>()
                 .ForMember(user => user.Tasks, opt => opt.MapFrom(src => src.Tasks));
         }
