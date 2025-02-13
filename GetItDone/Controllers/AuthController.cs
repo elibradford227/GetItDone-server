@@ -25,15 +25,8 @@ namespace GetItDone.Controllers
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
-            try
-            {
-                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex);
-            }
+             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+             return Ok();
         }
     }
 }
