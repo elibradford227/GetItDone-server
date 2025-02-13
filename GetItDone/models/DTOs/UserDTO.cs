@@ -6,6 +6,6 @@
         public string userName { get; set; }
         public string email { get; set; }
         public string? Initials { get; set; }
-        public List<UserTask>? Tasks { get; set; } = new List<UserTask>();
+        public List<UserTaskDTO>? Tasks { get; set; } = new List<UserTaskDTO>();
     }
 }
