@@ -1,12 +1,10 @@
-﻿using GetItDone.Data;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using GetItDone.models;
 using System.Security.Claims;
 using GetItDone.services;
+using GetItDone.models.DTOs;
+using AutoMapper;
 
 namespace GetItDone.Controllers
 {
@@ -16,10 +14,12 @@ namespace GetItDone.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;   
         }
 
         [HttpGet("{Id}")]
@@ -53,7 +53,8 @@ namespace GetItDone.Controllers
             {
                     return NotFound(new { message = "User not found." });
             }
-            return Ok(user);
+            var userDto = _mapper.Map<UserDTO>(user);
+            return Ok(userDto);
         }
     }
 }
