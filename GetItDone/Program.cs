@@ -7,6 +7,8 @@ using GetItDone.models;
 using Microsoft.EntityFrameworkCore;
 using GetItDone.services;
 using GetItDone.Infrastructure;
+using GetItDone.repositories;
+using AutoMapper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +40,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
+
 
 builder.Services.AddDbContext<GetItDoneDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("GetItDoneDbConnectionString")));

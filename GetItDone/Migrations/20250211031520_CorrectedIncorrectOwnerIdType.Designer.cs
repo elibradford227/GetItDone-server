@@ -3,6 +3,7 @@ using System;
 using GetItDone.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GetItDone.Migrations
 {
     [DbContext(typeof(GetItDoneDbContext))]
-    partial class GetItDoneDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250211031520_CorrectedIncorrectOwnerIdType")]
+    partial class CorrectedIncorrectOwnerIdType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +59,7 @@ namespace GetItDone.Migrations
 
                     b.HasIndex("Ownerid");
 
-                    b.ToTable("Tasks", "identity");
+                    b.ToTable("Task", "identity");
                 });
 
             modelBuilder.Entity("GetItDone.models.User", b =>
@@ -148,7 +151,7 @@ namespace GetItDone.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTasks", "identity");
+                    b.ToTable("UserTask", "identity");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

@@ -12,7 +12,7 @@ namespace GetItDone.models
         [Required]
         public string Status { get; set; }
         [Required]
-        public int Ownerid { get; set; }
+        public string Ownerid { get; set; }
         [Required]
         public User Owner { get; set; }
         [Required]
