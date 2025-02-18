@@ -11,6 +11,6 @@ namespace GetItDone.models.DTOs
         public string Ownerid { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? DueDate { get; set; }
-        public List<UserTask>? Assignees { get; set; } = new List<UserTask>();
+        public List<UserTaskDTO>? Assignees { get; set; } = new List<UserTaskDTO>();
     }
 }
