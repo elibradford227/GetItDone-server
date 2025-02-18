@@ -29,11 +29,6 @@ namespace GetItDone.repositories
 
         public async Task<UserDTO> GetUserWithTasks(string userId)
         {
-            //User? user = await _userManager.Users
-            //    .Include(u => u.Tasks)
-            //    .ThenInclude(ut => ut.Task)
-            //    .FirstOrDefaultAsync(u => u.Id == userId);
-
             User? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)

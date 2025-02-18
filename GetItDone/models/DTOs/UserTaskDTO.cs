@@ -9,5 +9,6 @@ namespace GetItDone.models.DTOs
         public int TaskId { get; set; }
         public TaskDTO Task { get; set; }
         public string UserId { get; set; }
+        public UserDTO User { get; set; }
     }
 }
