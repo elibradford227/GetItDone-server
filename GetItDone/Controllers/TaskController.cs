@@ -133,6 +133,23 @@ namespace GetItDone.Controllers
             return Ok(TaskToUpdate);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            models.Task TaskToDelete = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+
+            if (TaskToDelete == null)
+            {
+                return NotFound();
+            }
+
+            _dbContext.Tasks.Remove(TaskToDelete);
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = $"Task {TaskToDelete.Title} was deleted" });
+        }
+
         private IActionResult CheckValidStatus(string status)
         {
             if (!validStatuses.Contains(status))
