@@ -9,6 +9,8 @@ using AutoMapper;
 using GetItDone.Data;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 
 namespace GetItDone.Controllers
 {
@@ -18,10 +20,12 @@ namespace GetItDone.Controllers
     public class TaskController : ControllerBase
     {
         private readonly GetItDoneDbContext _dbContext;
+        private readonly IMapper _mapper;
         private readonly List<String> validStatuses = ["Complete", "In Progress", "Not Started"];
-        public TaskController(GetItDoneDbContext dbContext) 
+        public TaskController(GetItDoneDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         [HttpGet("all")]
@@ -40,8 +44,8 @@ namespace GetItDone.Controllers
                         UserId = a.UserId,
                         User = a.User != null ? new UserDTO
                         {
-                           Id = a.User.Id,
-                           UserName = a.User.UserName
+                            Id = a.User.Id,
+                            UserName = a.User.UserName
                         } : null
                     }).ToList()
                 })
@@ -116,7 +120,7 @@ namespace GetItDone.Controllers
 
             if (statusValidation != null)
             {
-                return statusValidation; 
+                return statusValidation;
             }
 
             models.Task TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
@@ -131,6 +135,42 @@ namespace GetItDone.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok(TaskToUpdate);
+        }
+
+        [HttpPost("new")]
+        public async Task<IActionResult> CreateTask([FromBody] TaskPayload taskPayload)
+        {
+            if (taskPayload == null)
+            {
+                return BadRequest(new { message = "Task Data must be sent" });
+            }
+
+            models.Task newTask = new models.Task
+            {
+                Title = taskPayload.Title,
+                Description = taskPayload.Description,
+                Status  = taskPayload.Status,
+                Ownerid = taskPayload.Ownerid,  
+                DueDate = taskPayload.DueDate,
+            };
+
+            _dbContext.Tasks.Add(newTask);
+
+            // Confirm if assignees were passed and create user task entities if they were 
+            if (taskPayload.Assignees?.Any() == true)
+            {
+                List<UserTask> assigneesPayload = taskPayload.Assignees.Select(a => new UserTask
+                {
+                    UserId = a.UserId,
+                    Task = newTask  
+                }).ToList();
+
+                _dbContext.UserTasks.AddRange(assigneesPayload);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return Created($"/api/task/{newTask.Id}", null);
         }
 
         [HttpDelete("{id}")]
@@ -163,6 +203,21 @@ namespace GetItDone.Controllers
         public class TaskRequest
         {
             public string Status { get; set; }
+        }
+
+        public class AssigneePayload
+        {
+            public string UserId { get; set; }
+        }
+        public class TaskPayload
+        {
+            public string Title { get; set; }
+            public string? Description { get; set; }
+            public string Status { get; set; }
+            public string Ownerid { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public DateTime? DueDate { get; set; }
+            public List<AssigneePayload> Assignees { get; set; }
         }
     }
 }
