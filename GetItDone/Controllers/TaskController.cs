@@ -49,6 +49,33 @@ namespace GetItDone.Controllers
             return Ok(Tasks);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSingleTasks(int id)
+        {
+            TaskDTO Task = await _dbContext.Tasks
+                .Include(t => t.Assignees)
+                .Where(t => t.Id == id)
+                .Select(t => new TaskDTO
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Status = t.Status,
+                    Assignees = t.Assignees.Select(a => new UserTaskDTO
+                    {
+                        Id = a.Id,
+                        UserId = a.UserId,
+                        User = a.User != null ? new UserDTO
+                        {
+                            Id = a.User.Id,
+                            UserName = a.User.UserName
+                        } : null
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            return Ok(Task);
+        }
+
         [HttpGet("status")]
         public async Task<IActionResult> GetTasksByStatus([FromQuery] string status)
         {
