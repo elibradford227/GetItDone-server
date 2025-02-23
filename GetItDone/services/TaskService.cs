@@ -8,7 +8,6 @@ namespace GetItDone.services
 {
     public interface ITaskService
     {
-        Task<models.Task?> GetTaskById(int id);
         Task<models.Task?> RemoveTaskAsync(int id);
         Task<List<TaskDTO>> GetAllTasksAsync();
         Task<TaskDTO?> GetSingleTaskAsync(int id);
@@ -40,11 +39,6 @@ namespace GetItDone.services
         public async Task<TaskDTO?> GetSingleTaskAsync(int id)
         {
             return await _taskRepository.GetBaseTaskQuery().Where(t => t.Id == id).SingleOrDefaultAsync();
-        }
-
-        public async Task<models.Task?> GetTaskById(int id)
-        {
-            return await _taskRepository.GetTaskById(id);
         }
 
         public async Task<models.Task?> RemoveTaskAsync(int id)
