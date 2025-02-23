@@ -10,6 +10,9 @@ namespace GetItDone.repositories
     public interface ITaskRepository
     {
         Task<List<UserTaskDTO>> GetUsersTasks(string userId);
+        Task<models.Task?> GetTaskById(int id);
+        Task<List<UserTask>> GetRelatedUserTasks(int taskId);
+        Task<models.Task?> DeleteTaskAsync(List<UserTask> RelatedUserTasks, models.Task TaskToDelete);
     }
 
     public class TaskRepository : ITaskRepository
@@ -45,13 +48,30 @@ namespace GetItDone.repositories
             return UsersTasks;
         }
 
-        //public async Task<User> GetUsersTasks(string userId)
-        //{
-        //    User? user = await _userManager.Users
-        //        .Include(u => u.Tasks)
-        //        .ThenInclude(ut => ut.Task)
-        //        .FirstOrDefaultAsync(u => u.Id == userId);
-        //    return user;
-        //}
+        public async Task<models.Task?> GetTaskById(int id)
+        {
+            return await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<List<UserTask>> GetRelatedUserTasks(int taskId)
+        {
+            return await _dbContext.UserTasks
+               .Where(t => t.TaskId == taskId)
+               .ToListAsync();
+        }
+
+        public async Task<models.Task?> DeleteTaskAsync(List<UserTask> RelatedUserTasks, models.Task taskToDelete)
+        {
+            if (RelatedUserTasks.Count > 0)
+            {
+                _dbContext.UserTasks.RemoveRange(RelatedUserTasks);
+            }
+
+            _dbContext.Tasks.Remove(taskToDelete);
+
+            await _dbContext.SaveChangesAsync();
+
+            return taskToDelete;
+        }
     }
 }
