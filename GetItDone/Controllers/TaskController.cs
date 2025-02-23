@@ -27,61 +27,23 @@ namespace GetItDone.Controllers
         {
             _dbContext = dbContext;
             _mapper = mapper;
-            _taskService = taskService; 
+            _taskService = taskService;
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTasks()
         {
-            List<TaskDTO> Tasks = await _dbContext.Tasks
-                .Include(t => t.Assignees)
-                .Select(t => new TaskDTO
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Status = t.Status,
-                    Ownerid = t.Ownerid,
-                    Assignees = t.Assignees.Select(a => new UserTaskDTO
-                    {
-                        Id = a.Id,
-                        UserId = a.UserId,
-                        TaskId = a.TaskId,
-                        User = a.User != null ? new UserDTO
-                        {
-                            Id = a.User.Id,
-                            UserName = a.User.UserName
-                        } : null
-                    }).ToList()
-                })
-                .ToListAsync();
-            return Ok(Tasks);
+            List<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+
+            return Ok(tasks);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSingleTasks(int id)
+        public async Task<IActionResult> GetSingleTask(int id)
         {
-            TaskDTO Task = await _dbContext.Tasks
-                .Include(t => t.Assignees)
-                .Where(t => t.Id == id)
-                .Select(t => new TaskDTO
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Status = t.Status,
-                    Assignees = t.Assignees.Select(a => new UserTaskDTO
-                    {
-                        Id = a.Id,
-                        UserId = a.UserId,
-                        User = a.User != null ? new UserDTO
-                        {
-                            Id = a.User.Id,
-                            UserName = a.User.UserName
-                        } : null
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+            TaskDTO? task = await _taskService.GetSingleTaskAsync(id);
 
-            return Ok(Task);
+            return Ok(task);
         }
 
         [HttpGet("status")]
@@ -94,27 +56,9 @@ namespace GetItDone.Controllers
                 return statusValidation;
             }
 
-            List<TaskDTO> Tasks = await _dbContext.Tasks
-                .Include(t => t.Assignees)
-                .Where(t => t.Status == status)
-                .Select(t => new TaskDTO
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Status = t.Status,
-                    Assignees = t.Assignees.Select(a => new UserTaskDTO
-                    {
-                        Id = a.Id,
-                        UserId = a.UserId,
-                        User = a.User != null ? new UserDTO
-                        {
-                            Id = a.User.Id,
-                            UserName = a.User.UserName
-                        } : null
-                    }).ToList()
-                })
-                .ToListAsync();
-            return Ok(Tasks);
+            IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksByStatusAsync(status);
+
+            return Ok(tasks);
         }
 
         [HttpPut("status/change/{id}")]
@@ -261,7 +205,7 @@ namespace GetItDone.Controllers
             }
         }
 
-        private IActionResult CheckValidStatus(string status)
+        private IActionResult? CheckValidStatus(string status)
         {
             if (!validStatuses.Contains(status))
             {
