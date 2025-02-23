@@ -49,7 +49,7 @@ namespace GetItDone.Controllers
         [HttpGet("status")]
         public async Task<IActionResult> GetTasksByStatus([FromQuery] string status)
         {
-            IActionResult statusValidation = CheckValidStatus(status);
+            BadRequestObjectResult statusValidation = CheckValidStatus(status);
 
             if (statusValidation != null)
             {
@@ -64,14 +64,14 @@ namespace GetItDone.Controllers
         [HttpPut("status/change/{id}")]
         public async Task<IActionResult> UpdateTaskStatus(int id, [FromBody] TaskRequest request)
         {
-            IActionResult statusValidation = CheckValidStatus(request.Status);
+            BadRequestObjectResult? statusValidation = CheckValidStatus(request.Status);
 
             if (statusValidation != null)
             {
                 return statusValidation;
             }
 
-            models.Task TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            models.Task? TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
 
             if (TaskToUpdate == null)
             {
@@ -205,7 +205,7 @@ namespace GetItDone.Controllers
             }
         }
 
-        private IActionResult? CheckValidStatus(string status)
+        private BadRequestObjectResult? CheckValidStatus(string status)
         {
             if (!validStatuses.Contains(status))
             {
