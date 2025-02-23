@@ -1,13 +1,19 @@
 ﻿using GetItDone.models;
+using GetItDone.models.DTOs;
 using GetItDone.repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace GetItDone.services
 {
     public interface ITaskService
     {
-        Task<models.Task> GetTaskById(int id);
+        Task<models.Task?> GetTaskById(int id);
         Task<models.Task?> RemoveTaskAsync(int id);
+        Task<List<TaskDTO>> GetAllTasksAsync();
+        Task<TaskDTO?> GetSingleTaskAsync(int id);
+
+        Task<IReadOnlyList<TaskDTO>> GetAllTasksByStatusAsync(string status);
     }
 
     public class TaskService : ITaskService
@@ -21,7 +27,22 @@ namespace GetItDone.services
             _taskRepository = taskRepository;
         }
 
-        public async Task<models.Task> GetTaskById(int id)
+        public async Task<List<TaskDTO>> GetAllTasksAsync()
+        {
+            return await _taskRepository.GetBaseTaskQuery().ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<TaskDTO>> GetAllTasksByStatusAsync(string status)
+        {
+            return await _taskRepository.GetBaseTaskQuery().Where(t => t.Status == status).ToListAsync();
+        }
+
+        public async Task<TaskDTO?> GetSingleTaskAsync(int id)
+        {
+            return await _taskRepository.GetBaseTaskQuery().Where(t => t.Id == id).SingleOrDefaultAsync();
+        }
+
+        public async Task<models.Task?> GetTaskById(int id)
         {
             return await _taskRepository.GetTaskById(id);
         }
@@ -35,7 +56,7 @@ namespace GetItDone.services
                 return null;
             }
 
-            List<UserTask> RelatedUserTasks = await _taskRepository.GetRelatedUserTasks(id);
+            ICollection<UserTask> RelatedUserTasks = await _taskRepository.GetRelatedUserTasks(id);
 
             return await _taskRepository.DeleteTaskAsync(RelatedUserTasks, task);
         }
