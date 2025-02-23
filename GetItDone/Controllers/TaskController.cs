@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
-using Microsoft.VisualBasic;
 
 namespace GetItDone.Controllers
 {
@@ -21,12 +20,14 @@ namespace GetItDone.Controllers
     public class TaskController : ControllerBase
     {
         private readonly GetItDoneDbContext _dbContext;
+        private readonly ITaskService _taskService;
         private readonly IMapper _mapper;
         private readonly List<String> validStatuses = ["Complete", "In Progress", "Not Started"];
-        public TaskController(GetItDoneDbContext dbContext, IMapper mapper)
+        public TaskController(GetItDoneDbContext dbContext, IMapper mapper, ITaskService taskService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _taskService = taskService; 
         }
 
         [HttpGet("all")]
@@ -163,13 +164,6 @@ namespace GetItDone.Controllers
             // Confirm if assignees were passed and create user task entities if they were 
             if (taskPayload.Assignees?.Any() == true)
             {
-                //List<UserTask> assigneesPayload = taskPayload.Assignees.Select(a => new UserTask
-                //{
-                //    UserId = a.UserId,
-                //    Task = newTask
-                //}).ToList();
-
-                //_dbContext.UserTasks.AddRange(assigneesPayload);
                 CreateAssignees(taskPayload, newTask);
             }
 
@@ -237,27 +231,14 @@ namespace GetItDone.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            models.Task TaskToDelete = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            models.Task taskDeleted = await _taskService.RemoveTaskAsync(id);
 
-            if (TaskToDelete == null)
+            if (taskDeleted == null)
             {
-                return NotFound();
+                return NotFound(new { message = $"Task was not found" });
             }
 
-            List<UserTask> RelatedUserTasks = await _dbContext.UserTasks
-                .Where(t => t.TaskId == TaskToDelete.Id)
-                .ToListAsync();
-
-            if (RelatedUserTasks.Count > 0)
-            {
-                _dbContext.UserTasks.RemoveRange(RelatedUserTasks);
-            }
-
-            _dbContext.Tasks.Remove(TaskToDelete);
-
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(new { message = $"Task {TaskToDelete.Title} was deleted" });
+            return Ok(new { message = $"Task {taskDeleted.Title} was deleted" });
         }
 
         private void CreateAssignees(TaskPayload taskPayload, models.Task task)
@@ -265,9 +246,9 @@ namespace GetItDone.Controllers
 
             foreach (AssigneePayload assignee in taskPayload.Assignees)
             {
-                bool userExists = _dbContext.UserTasks.Any(ut => ut.TaskId == task.Id && ut.UserId == assignee.UserId);
+                bool userTaskExists = _dbContext.UserTasks.Any(ut => ut.TaskId == task.Id && ut.UserId == assignee.UserId);
 
-                if (!userExists)
+                if (!userTaskExists)
                 {
                     UserTask newUserTask = new UserTask
                     {
