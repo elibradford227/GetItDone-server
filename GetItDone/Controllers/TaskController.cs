@@ -231,7 +231,7 @@ namespace GetItDone.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            models.Task taskDeleted = await _taskService.RemoveTaskAsync(id);
+            models.Task? taskDeleted = await _taskService.RemoveTaskAsync(id);
 
             if (taskDeleted == null)
             {

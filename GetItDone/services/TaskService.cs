@@ -6,7 +6,7 @@ namespace GetItDone.services
 {
     public interface ITaskService
     {
-        Task<models.Task> GetTaskById(int id);
+        Task<models.Task?> GetTaskById(int id);
         Task<models.Task?> RemoveTaskAsync(int id);
     }
 
@@ -21,7 +21,7 @@ namespace GetItDone.services
             _taskRepository = taskRepository;
         }
 
-        public async Task<models.Task> GetTaskById(int id)
+        public async Task<models.Task?> GetTaskById(int id)
         {
             return await _taskRepository.GetTaskById(id);
         }
@@ -35,7 +35,7 @@ namespace GetItDone.services
                 return null;
             }
 
-            List<UserTask> RelatedUserTasks = await _taskRepository.GetRelatedUserTasks(id);
+            ICollection<UserTask> RelatedUserTasks = await _taskRepository.GetRelatedUserTasks(id);
 
             return await _taskRepository.DeleteTaskAsync(RelatedUserTasks, task);
         }

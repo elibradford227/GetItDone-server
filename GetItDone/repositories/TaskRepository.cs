@@ -11,8 +11,8 @@ namespace GetItDone.repositories
     {
         Task<List<UserTaskDTO>> GetUsersTasks(string userId);
         Task<models.Task?> GetTaskById(int id);
-        Task<List<UserTask>> GetRelatedUserTasks(int taskId);
-        Task<models.Task?> DeleteTaskAsync(List<UserTask> RelatedUserTasks, models.Task TaskToDelete);
+        Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId);
+        Task<models.Task?> DeleteTaskAsync(ICollection<UserTask> RelatedUserTasks, models.Task TaskToDelete);
     }
 
     public class TaskRepository : ITaskRepository
@@ -53,14 +53,14 @@ namespace GetItDone.repositories
             return await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<List<UserTask>> GetRelatedUserTasks(int taskId)
+        public async Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId)
         {
             return await _dbContext.UserTasks
                .Where(t => t.TaskId == taskId)
                .ToListAsync();
         }
 
-        public async Task<models.Task?> DeleteTaskAsync(List<UserTask> RelatedUserTasks, models.Task taskToDelete)
+        public async Task<models.Task?> DeleteTaskAsync(ICollection<UserTask> RelatedUserTasks, models.Task taskToDelete)
         {
             if (RelatedUserTasks.Count > 0)
             {

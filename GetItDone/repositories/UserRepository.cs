@@ -10,7 +10,7 @@ namespace GetItDone.repositories
 {
     public interface IUserRepository
     {
-        Task<UserDTO> GetUserWithTasks(string userId);
+        Task<UserDTO?> GetUserWithTasks(string userId);
     }
     public class UserRepository : IUserRepository
     {
@@ -27,7 +27,7 @@ namespace GetItDone.repositories
             _mapper = mapper;
         }
 
-        public async Task<UserDTO> GetUserWithTasks(string userId)
+        public async Task<UserDTO?> GetUserWithTasks(string userId)
         {
             User? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
