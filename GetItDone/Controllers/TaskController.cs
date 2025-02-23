@@ -33,7 +33,12 @@ namespace GetItDone.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTasks()
         {
-            List<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+            IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+
+            if (!tasks.Any())
+            {
+                return NotFound(new { message = "No tasks were found" });
+            }
 
             return Ok(tasks);
         }
@@ -43,13 +48,18 @@ namespace GetItDone.Controllers
         {
             TaskDTO? task = await _taskService.GetSingleTaskAsync(id);
 
+            if (task == null)
+            {
+                return NotFound(new { message = "Could not find task" });
+            }
+
             return Ok(task);
         }
 
         [HttpGet("status")]
         public async Task<IActionResult> GetTasksByStatus([FromQuery] string status)
         {
-            BadRequestObjectResult statusValidation = CheckValidStatus(status);
+            BadRequestObjectResult? statusValidation = CheckValidStatus(status);
 
             if (statusValidation != null)
             {
@@ -71,18 +81,14 @@ namespace GetItDone.Controllers
                 return statusValidation;
             }
 
-            models.Task? TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            models.Task? updatedTask = await _taskService.UpdateTaskStatusAsync(id, request.Status);
 
-            if (TaskToUpdate == null)
+            if (updatedTask == null)
             {
                 return NotFound();
             }
 
-            TaskToUpdate.Status = request.Status;
-
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(TaskToUpdate);
+            return Ok(updatedTask);
         }
 
         [HttpPost("new")]

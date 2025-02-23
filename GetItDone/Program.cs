@@ -53,7 +53,7 @@ var app = builder.Build();
 
 // experimenting with preloading queries to reduce initial response time after app startup
 
-using (var scope = app.Services.CreateScope())
+using (IServiceScope scope = app.Services.CreateScope())
 {
     ITaskRepository taskRepo = scope.ServiceProvider.GetRequiredService<ITaskRepository>();
     await taskRepo.GetBaseTaskQuery().FirstOrDefaultAsync();

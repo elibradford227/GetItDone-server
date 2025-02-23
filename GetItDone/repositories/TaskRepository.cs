@@ -12,6 +12,7 @@ namespace GetItDone.repositories
         Task<List<UserTaskDTO>> GetUsersTasks(string userId);
         Task<models.Task?> GetTaskById(int id);
         IQueryable<TaskDTO> GetBaseTaskQuery();
+        Task<models.Task> UpdateTaskStatusAsync(models.Task task);
         Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId);
         Task<models.Task?> DeleteTaskAsync(ICollection<UserTask> RelatedUserTasks, models.Task TaskToDelete);
     }
@@ -73,6 +74,13 @@ namespace GetItDone.repositories
                 });
 
               return taskQuery;
+        }
+
+        public async Task<models.Task> UpdateTaskStatusAsync(models.Task task)
+        {
+            _dbContext.Tasks.Update(task);
+            await _dbContext.SaveChangesAsync();
+            return task;
         }
 
         public async Task<models.Task?> GetTaskById(int id)
