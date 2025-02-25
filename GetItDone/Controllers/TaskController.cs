@@ -33,7 +33,12 @@ namespace GetItDone.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTasks()
         {
-            List<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+            IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+
+            if (!tasks.Any())
+            {
+                return NotFound(new { message = "No tasks were found" });
+            }
 
             return Ok(tasks);
         }
@@ -43,13 +48,18 @@ namespace GetItDone.Controllers
         {
             TaskDTO? task = await _taskService.GetSingleTaskAsync(id);
 
+            if (task == null)
+            {
+                return NotFound(new { message = "Could not find task" });
+            }
+
             return Ok(task);
         }
 
         [HttpGet("status")]
         public async Task<IActionResult> GetTasksByStatus([FromQuery] string status)
         {
-            IActionResult statusValidation = CheckValidStatus(status);
+            BadRequestObjectResult? statusValidation = CheckValidStatus(status);
 
             if (statusValidation != null)
             {
@@ -64,25 +74,21 @@ namespace GetItDone.Controllers
         [HttpPut("status/change/{id}")]
         public async Task<IActionResult> UpdateTaskStatus(int id, [FromBody] TaskRequest request)
         {
-            IActionResult statusValidation = CheckValidStatus(request.Status);
+            BadRequestObjectResult? statusValidation = CheckValidStatus(request.Status);
 
             if (statusValidation != null)
             {
                 return statusValidation;
             }
 
-            models.Task TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            models.Task? updatedTask = await _taskService.UpdateTaskStatusAsync(id, request.Status);
 
-            if (TaskToUpdate == null)
+            if (updatedTask == null)
             {
                 return NotFound();
             }
 
-            TaskToUpdate.Status = request.Status;
-
-            await _dbContext.SaveChangesAsync();
-
-            return Ok(TaskToUpdate);
+            return Ok(updatedTask);
         }
 
         [HttpPost("new")]
@@ -93,25 +99,7 @@ namespace GetItDone.Controllers
                 return BadRequest(new { message = "Task Data must be sent" });
             }
 
-
-            models.Task newTask = new models.Task
-            {
-                Title = taskPayload.Title,
-                Description = taskPayload.Description,
-                Status  = taskPayload.Status,
-                Ownerid = taskPayload.Ownerid,  
-                DueDate = taskPayload.DueDate,
-            };
-
-            _dbContext.Tasks.Add(newTask);
-
-            // Confirm if assignees were passed and create user task entities if they were 
-            if (taskPayload.Assignees?.Any() == true)
-            {
-                CreateAssignees(taskPayload, newTask);
-            }
-
-            await _dbContext.SaveChangesAsync();
+            models.Task newTask = await _taskService.CreateTaskAsync(taskPayload);
 
             return Created($"/api/task/{newTask.Id}", null);
         }
@@ -205,7 +193,7 @@ namespace GetItDone.Controllers
             }
         }
 
-        private IActionResult? CheckValidStatus(string status)
+        private BadRequestObjectResult? CheckValidStatus(string status)
         {
             if (!validStatuses.Contains(status))
             {

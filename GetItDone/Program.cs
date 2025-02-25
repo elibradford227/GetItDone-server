@@ -20,6 +20,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
 builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme)
@@ -53,7 +54,7 @@ var app = builder.Build();
 
 // experimenting with preloading queries to reduce initial response time after app startup
 
-using (var scope = app.Services.CreateScope())
+using (IServiceScope scope = app.Services.CreateScope())
 {
     ITaskRepository taskRepo = scope.ServiceProvider.GetRequiredService<ITaskRepository>();
     await taskRepo.GetBaseTaskQuery().FirstOrDefaultAsync();

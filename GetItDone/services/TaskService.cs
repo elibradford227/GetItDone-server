@@ -1,32 +1,39 @@
-﻿using GetItDone.models;
+﻿using GetItDone.Data;
+using GetItDone.models;
 using GetItDone.models.DTOs;
 using GetItDone.repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using static GetItDone.Controllers.TaskController;
 
 namespace GetItDone.services
 {
     public interface ITaskService
     {
         Task<models.Task?> RemoveTaskAsync(int id);
-        Task<List<TaskDTO>> GetAllTasksAsync();
+        Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync();
         Task<TaskDTO?> GetSingleTaskAsync(int id);
+        Task<models.Task?> UpdateTaskStatusAsync(int id, string newStatus);
+        Task<models.Task> CreateTaskAsync(TaskPayload taskPayload);
 
         Task<IReadOnlyList<TaskDTO>> GetAllTasksByStatusAsync(string status);
     }
 
     public class TaskService : ITaskService
     {
-        private readonly UserManager<User> _userManager;
         private readonly ITaskRepository _taskRepository;
+        private readonly IUserTaskRepository _userTaskRepository;
+        private readonly GetItDoneDbContext _dbContext;
 
-        public TaskService(UserManager<User> userManager, ITaskRepository taskRepository)
+        public TaskService(IUserTaskRepository userTaskRepository, ITaskRepository taskRepository, GetItDoneDbContext dbContext)
         {
-            _userManager = userManager;
+            _userTaskRepository = userTaskRepository;
             _taskRepository = taskRepository;
+            _dbContext = dbContext;
         }
 
-        public async Task<List<TaskDTO>> GetAllTasksAsync()
+        public async Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync()
         {
             return await _taskRepository.GetBaseTaskQuery().ToListAsync();
         }
@@ -36,9 +43,23 @@ namespace GetItDone.services
             return await _taskRepository.GetBaseTaskQuery().Where(t => t.Status == status).ToListAsync();
         }
 
-        public async Task<TaskDTO?> GetSingleTaskAsync(int id)
+        public Task<TaskDTO?> GetSingleTaskAsync(int id)
         {
-            return await _taskRepository.GetBaseTaskQuery().Where(t => t.Id == id).SingleOrDefaultAsync();
+            return _taskRepository.GetBaseTaskQuery().Where(t => t.Id == id).SingleOrDefaultAsync();
+        }
+
+        public async Task<models.Task?> UpdateTaskStatusAsync(int id, string newStatus)
+        {
+            models.Task? taskToUpdate = await _taskRepository.GetTaskById(id);
+
+            if (taskToUpdate == null)
+            {
+                return null;
+            }
+
+            taskToUpdate.Status = newStatus;
+
+            return await _taskRepository.UpdateTaskStatusAsync(taskToUpdate);
         }
 
         public async Task<models.Task?> RemoveTaskAsync(int id)
@@ -50,9 +71,90 @@ namespace GetItDone.services
                 return null;
             }
 
-            ICollection<UserTask> RelatedUserTasks = await _taskRepository.GetRelatedUserTasks(id);
+            ICollection<UserTask> relatedUserTasks = await _userTaskRepository.GetRelatedUserTasks(id);
 
-            return await _taskRepository.DeleteTaskAsync(RelatedUserTasks, task);
+            if (relatedUserTasks.Any())
+            {
+                await _userTaskRepository.RemoveRelatedUserTasks(relatedUserTasks);
+            }
+
+            return await _taskRepository.DeleteTaskAsync(task);
+        }
+
+        //public async Task<models.Task> CreateTaskAsync(TaskPayload taskPayload)
+        //{
+        //    models.Task newTask = new models.Task
+        //    {
+        //        Title = taskPayload.Title,
+        //        Description = taskPayload.Description,
+        //        Status = taskPayload.Status,
+        //        Ownerid = taskPayload.Ownerid,
+        //        DueDate = taskPayload.DueDate,
+        //    };
+
+        //    await _taskRepository.AddTaskToContext(newTask);
+
+        //    if (taskPayload.Assignees?.Any() == true)
+        //    {
+        //        await CreateAssignees(taskPayload, newTask);
+        //    }
+
+        //    await _dbContext.SaveChangesAsync();
+        //    return newTask;
+        //}
+
+        public async Task<models.Task> CreateTaskAsync(TaskPayload taskPayload)
+        {
+            using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                models.Task newTask = new models.Task
+                {
+                    Title = taskPayload.Title,
+                    Description = taskPayload.Description,
+                    Status = taskPayload.Status,
+                    Ownerid = taskPayload.Ownerid,
+                    DueDate = taskPayload.DueDate,
+                };
+
+                await _taskRepository.AddTaskToContext(newTask);
+
+                if (taskPayload.Assignees?.Any() == true)
+                {
+                    await CreateAssignees(taskPayload, newTask);
+                }
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return newTask;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+
+        private async System.Threading.Tasks.Task CreateAssignees(TaskPayload taskPayload, models.Task task)
+        {
+
+            foreach (AssigneePayload assignee in taskPayload.Assignees)
+            {
+                bool userTaskExists = _userTaskRepository.CheckUserTaskExists(task.Id, assignee.UserId);
+
+                if (!userTaskExists)
+                {
+                    UserTask newUserTask = new UserTask
+                    {
+                        UserId = assignee.UserId,
+                        Task = task
+                    };
+
+                    await _userTaskRepository.AddUserTaskToContext(newUserTask);
+                }
+            }
         }
     }
 }
