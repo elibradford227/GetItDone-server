@@ -117,7 +117,7 @@ namespace GetItDone.services
                     DueDate = taskPayload.DueDate,
                 };
 
-                await _taskRepository.AddTaskToContext(newTask);
+                _taskRepository.AddTaskToContext(newTask);
 
                 if (taskPayload.Assignees?.Any() == true)
                 {
