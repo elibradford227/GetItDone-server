@@ -99,25 +99,7 @@ namespace GetItDone.Controllers
                 return BadRequest(new { message = "Task Data must be sent" });
             }
 
-
-            models.Task newTask = new models.Task
-            {
-                Title = taskPayload.Title,
-                Description = taskPayload.Description,
-                Status  = taskPayload.Status,
-                Ownerid = taskPayload.Ownerid,  
-                DueDate = taskPayload.DueDate,
-            };
-
-            _dbContext.Tasks.Add(newTask);
-
-            // Confirm if assignees were passed and create user task entities if they were 
-            if (taskPayload.Assignees?.Any() == true)
-            {
-                CreateAssignees(taskPayload, newTask);
-            }
-
-            await _dbContext.SaveChangesAsync();
+            models.Task newTask = await _taskService.CreateTaskAsync(taskPayload);
 
             return Created($"/api/task/{newTask.Id}", null);
         }

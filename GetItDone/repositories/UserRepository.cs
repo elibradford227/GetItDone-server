@@ -16,14 +16,14 @@ namespace GetItDone.repositories
     {
         private readonly GetItDoneDbContext _dbContext;
         private readonly UserManager<User> _userManager;
-        private readonly ITaskRepository _taskRepository;
+        private readonly IUserTaskRepository _userTaskRepository;
         private readonly IMapper _mapper;
 
-        public UserRepository(GetItDoneDbContext dbContext, UserManager<User> userManager, ITaskRepository taskRepository, IMapper mapper)
+        public UserRepository(GetItDoneDbContext dbContext, UserManager<User> userManager, IUserTaskRepository userTaskRepository, IMapper mapper)
         {
             _dbContext = dbContext;
             _userManager = userManager;
-            _taskRepository = taskRepository;
+            _userTaskRepository = userTaskRepository;
             _mapper = mapper;
         }
 
@@ -36,7 +36,7 @@ namespace GetItDone.repositories
                 return null;
             }
 
-            List<UserTaskDTO> UsersTasks = await _taskRepository.GetUsersTasks(userId);
+            List<UserTaskDTO> UsersTasks = await _userTaskRepository.GetUsersTasks(userId);
 
             var userDto = _mapper.Map<UserDTO>(user);
 
