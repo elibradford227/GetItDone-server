@@ -15,8 +15,6 @@ namespace GetItDone.repositories
         Task<models.Task> UpdateTaskStatusAsync(models.Task task);
         Task<models.Task?> DeleteTaskAsync(models.Task TaskToDelete);
         Task<models.Task?> CreateTask(models.Task task);
-
-        System.Threading.Tasks.Task AddTaskToContext(models.Task task);
     }
 
     public class TaskRepository : ITaskRepository
@@ -84,11 +82,5 @@ namespace GetItDone.repositories
 
             return taskToDelete;
         }
-
-        public async System.Threading.Tasks.Task AddTaskToContext(models.Task task)
-        {
-            _dbContext.Tasks.Add(task);
-        }
-
     }
 }

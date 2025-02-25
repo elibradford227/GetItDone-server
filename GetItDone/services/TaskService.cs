@@ -81,28 +81,6 @@ namespace GetItDone.services
             return await _taskRepository.DeleteTaskAsync(task);
         }
 
-        //public async Task<models.Task> CreateTaskAsync(TaskPayload taskPayload)
-        //{
-        //    models.Task newTask = new models.Task
-        //    {
-        //        Title = taskPayload.Title,
-        //        Description = taskPayload.Description,
-        //        Status = taskPayload.Status,
-        //        Ownerid = taskPayload.Ownerid,
-        //        DueDate = taskPayload.DueDate,
-        //    };
-
-        //    await _taskRepository.AddTaskToContext(newTask);
-
-        //    if (taskPayload.Assignees?.Any() == true)
-        //    {
-        //        await CreateAssignees(taskPayload, newTask);
-        //    }
-
-        //    await _dbContext.SaveChangesAsync();
-        //    return newTask;
-        //}
-
         public async Task<models.Task> CreateTaskAsync(TaskPayload taskPayload)
         {
             using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -117,7 +95,7 @@ namespace GetItDone.services
                     DueDate = taskPayload.DueDate,
                 };
 
-                await _taskRepository.AddTaskToContext(newTask);
+                _dbContext.Tasks.Add(newTask);
 
                 if (taskPayload.Assignees?.Any() == true)
                 {
