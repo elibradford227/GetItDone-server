@@ -14,7 +14,6 @@ namespace GetItDone.repositories
         bool CheckUserTaskExists(int taskId, string userId);
         Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId);
         System.Threading.Tasks.Task RemoveRelatedUserTasks(ICollection<UserTask> RelatedUserTasks);
-        System.Threading.Tasks.Task AddUserTaskToContext(UserTask userTask);
         }
     public class UserTaskRepository : IUserTaskRepository
     {
@@ -65,12 +64,6 @@ namespace GetItDone.repositories
         {
             _dbContext.UserTasks.RemoveRange(RelatedUserTasks);
             await _dbContext.SaveChangesAsync();
-        }
-
-
-        public async System.Threading.Tasks.Task AddUserTaskToContext(UserTask userTask)
-        {
-            _dbContext.UserTasks.Add(userTask);
         }
     }
 }
