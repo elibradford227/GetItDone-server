@@ -107,6 +107,8 @@ namespace GetItDone.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, [FromBody] TaskPayload taskPayload)
         {
+            // TODO: refactor to implement better error handling
+
             if (taskPayload == null)
             {
                 return BadRequest(new { message = "Task Data must be sent" });
@@ -126,35 +128,12 @@ namespace GetItDone.Controllers
                 }
             }
 
-            models.Task TaskToUpdate = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            models.Task TaskToUpdate = await _taskService.UpdateTaskAsync(id, taskPayload, statusPassed);
 
             if (TaskToUpdate == null)
             {
                 return NotFound();
             }
-
-            if (taskPayload.Ownerid != null)
-            {
-                bool userExists = _dbContext.Users.Any(u => u.Id == taskPayload.Ownerid);
-
-                if (!userExists)
-                {
-                    return BadRequest(new { message = "Owner id must be a valid user" });
-                }
-            }
-
-            TaskToUpdate.Title = taskPayload.Title;
-            TaskToUpdate.Description = taskPayload.Description;
-            TaskToUpdate.Ownerid = taskPayload.Ownerid != null ? taskPayload.Ownerid : TaskToUpdate.Ownerid;
-            TaskToUpdate.Status = statusPassed ? taskPayload.Status : TaskToUpdate.Status;
-            TaskToUpdate.DueDate = taskPayload.DueDate;
-
-            if (taskPayload.Assignees?.Any() == true)
-            {
-                CreateAssignees(taskPayload, TaskToUpdate);
-            }
-
-            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
@@ -171,26 +150,6 @@ namespace GetItDone.Controllers
             }
 
             return Ok(new { message = $"Task {taskDeleted.Title} was deleted" });
-        }
-
-        private void CreateAssignees(TaskPayload taskPayload, models.Task task)
-        {
-
-            foreach (AssigneePayload assignee in taskPayload.Assignees)
-            {
-                bool userTaskExists = _dbContext.UserTasks.Any(ut => ut.TaskId == task.Id && ut.UserId == assignee.UserId);
-
-                if (!userTaskExists)
-                {
-                    UserTask newUserTask = new UserTask
-                    {
-                        UserId = assignee.UserId,
-                        Task = task
-                    };
-
-                    _dbContext.UserTasks.Add(newUserTask);
-                }
-            }
         }
 
         private BadRequestObjectResult? CheckValidStatus(string status)

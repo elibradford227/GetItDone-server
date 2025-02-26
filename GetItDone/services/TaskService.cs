@@ -16,20 +16,22 @@ namespace GetItDone.services
         Task<TaskDTO?> GetSingleTaskAsync(int id);
         Task<models.Task?> UpdateTaskStatusAsync(int id, string newStatus);
         Task<models.Task> CreateTaskAsync(TaskPayload taskPayload);
-
         Task<IReadOnlyList<TaskDTO>> GetAllTasksByStatusAsync(string status);
+        Task<models.Task> UpdateTaskAsync(int id, TaskPayload taskPayload, bool statusPassed);
     }
 
     public class TaskService : ITaskService
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IUserTaskRepository _userTaskRepository;
+        private readonly IUserRepository _userRepository;
         private readonly GetItDoneDbContext _dbContext;
 
-        public TaskService(IUserTaskRepository userTaskRepository, ITaskRepository taskRepository, GetItDoneDbContext dbContext)
+        public TaskService(IUserTaskRepository userTaskRepository, ITaskRepository taskRepository, GetItDoneDbContext dbContext, IUserRepository userRepository)
         {
             _userTaskRepository = userTaskRepository;
             _taskRepository = taskRepository;
+            _userRepository = userRepository;
             _dbContext = dbContext;
         }
 
@@ -112,6 +114,40 @@ namespace GetItDone.services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<models.Task> UpdateTaskAsync(int id, TaskPayload taskPayload, bool statusPassed)
+        {
+            models.Task? TaskToUpdate = await _taskRepository.GetTaskById(id);
+
+            if (TaskToUpdate == null)
+            {
+                return null;
+            }
+
+            if (taskPayload.Ownerid != null)
+            {
+                bool userExists = _userRepository.CheckUserExists(taskPayload.Ownerid);
+
+                if (!userExists)
+                {
+                    return null;
+                }
+            }
+
+            TaskToUpdate.Title = taskPayload.Title;
+            TaskToUpdate.Description = taskPayload.Description;
+            TaskToUpdate.Ownerid = taskPayload.Ownerid != null ? taskPayload.Ownerid : TaskToUpdate.Ownerid;
+            TaskToUpdate.Status = statusPassed ? taskPayload.Status : TaskToUpdate.Status;
+            TaskToUpdate.DueDate = taskPayload.DueDate;
+
+            if (taskPayload.Assignees?.Any() == true)
+            {
+                await CreateAssignees(taskPayload, TaskToUpdate);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return TaskToUpdate;
         }
 
 
