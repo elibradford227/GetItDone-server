@@ -5,12 +5,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using System.ComponentModel;
+using static GetItDone.Controllers.TaskController;
 
 namespace GetItDone.repositories
 {
     public interface IUserRepository
     {
         Task<UserDTO?> GetUserWithTasks(string userId);
+        bool CheckUserExists(string userId);
     }
     public class UserRepository : IUserRepository
     {
@@ -43,6 +46,11 @@ namespace GetItDone.repositories
             userDto.Tasks = UsersTasks;
 
             return userDto;
+        }
+
+        public bool CheckUserExists(string userId)
+        {
+            return _dbContext.Users.Any(u => u.Id == userId);
         }
     }
 }
