@@ -23,6 +23,25 @@ public class TaskControllerTests
         _controller = new TaskController(_mockMapper.Object, _mockService.Object);
     }
 
+
+    [Fact]
+    public async void GetAllTasksReturnsOk()
+    {
+
+        List<TaskDTO> expectedTasks = new List<TaskDTO>
+        { new TaskDTO { Id = 1, Title = "Test" }, 
+          new TaskDTO { Id = 2, Title = "Test 2" },
+        };
+
+        _mockService.Setup(s => s.GetAllTasksAsync()).ReturnsAsync(expectedTasks);
+
+        var result = await _controller.GetAllTasks();
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var tasks = Assert.IsAssignableFrom<IEnumerable<TaskDTO>>(okResult.Value);
+        Assert.Equal(2, tasks.Count());
+    }
+
     [Fact]
     public async void GetSingleTaskReturnsOk()
     {
