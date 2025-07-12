@@ -23,7 +23,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
-builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme)
+builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme, options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+    options.Cookie.SameSite = SameSiteMode.None; 
+    options.Cookie.Path = "/";
+})
     .AddBearerToken(IdentityConstants.BearerScheme);
 
 builder.Services.AddIdentityCore<User>()
@@ -37,6 +43,18 @@ builder.Services.AddAuthorization(options =>
     .Build();
 
     options.DefaultPolicy = policy;
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost3000",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") 
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials(); 
+        });
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -66,6 +84,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowLocalhost3000");
 
 app.Urls.Add("http://0.0.0.0:8080");
 app.Urls.Add("https://0.0.0.0:8081");
