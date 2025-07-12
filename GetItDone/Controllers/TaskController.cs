@@ -19,13 +19,11 @@ namespace GetItDone.Controllers
     [Authorize(AuthenticationSchemes = "Identity.Application")]
     public class TaskController : ControllerBase
     {
-        private readonly GetItDoneDbContext _dbContext;
         private readonly ITaskService _taskService;
         private readonly IMapper _mapper;
         private readonly List<String> validStatuses = ["Complete", "In Progress", "Not Started"];
-        public TaskController(GetItDoneDbContext dbContext, IMapper mapper, ITaskService taskService)
+        public TaskController(IMapper mapper, ITaskService taskService)
         {
-            _dbContext = dbContext;
             _mapper = mapper;
             _taskService = taskService;
         }
