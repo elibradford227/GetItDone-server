@@ -99,7 +99,7 @@ namespace GetItDone.Controllers
 
             models.Task newTask = await _taskService.CreateTaskAsync(taskPayload);
 
-            return Created($"/api/task/{newTask.Id}", null);
+            return Created($"/api/task/{newTask.Id}", newTask);
         }
 
         [HttpPut("{id}")]
@@ -169,15 +169,15 @@ namespace GetItDone.Controllers
         {
             public string UserId { get; set; }
         }
-        public class TaskPayload
-        {
-            public string Title { get; set; }
-            public string? Description { get; set; }
-            public string? Status { get; set; }
-            public string? Ownerid { get; set; }
-            public DateTime CreatedDate { get; set; }
-            public DateTime? DueDate { get; set; }
-            public List<AssigneePayload> Assignees { get; set; }
-        }
+        //public class TaskPayload
+        //{
+        //    public string Title { get; set; }
+        //    public string? Description { get; set; }
+        //    public string? Status { get; set; }
+        //    public string? Ownerid { get; set; }
+        //    public DateTime CreatedDate { get; set; }
+        //    public DateTime? DueDate { get; set; }
+        //    public List<AssigneePayload> Assignees { get; set; }
+        //}
     }
 }
