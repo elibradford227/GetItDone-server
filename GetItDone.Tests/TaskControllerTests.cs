@@ -23,6 +23,25 @@ public class TaskControllerTests
         _controller = new TaskController(_mockMapper.Object, _mockService.Object);
     }
 
+
+    [Fact]
+    public async void GetAllTasksReturnsOk()
+    {
+
+        List<TaskDTO> expectedTasks = new List<TaskDTO>
+        { new TaskDTO { Id = 1, Title = "Test" }, 
+          new TaskDTO { Id = 2, Title = "Test 2" },
+        };
+
+        _mockService.Setup(s => s.GetAllTasksAsync()).ReturnsAsync(expectedTasks);
+
+        var result = await _controller.GetAllTasks();
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var tasks = Assert.IsAssignableFrom<IEnumerable<TaskDTO>>(okResult.Value);
+        Assert.Equal(2, tasks.Count());
+    }
+
     [Fact]
     public async void GetSingleTaskReturnsOk()
     {
@@ -47,5 +66,29 @@ public class TaskControllerTests
 
         var notFound = Assert.IsType<NotFoundObjectResult>(result);
         Assert.Equal(404, notFound.StatusCode);
+    }
+
+    [Fact]
+    public async void CreateTask_ReturnsCreatedAt()
+    {
+        var taskPayload = new TaskPayload { Title = "New Task", Assignees = new List<TaskController.AssigneePayload>() };
+        var createdTask = new models.Task { Id = 3, Title = "New Task" };
+
+        _mockService.Setup(s => s.CreateTaskAsync(taskPayload)).ReturnsAsync(createdTask);
+
+        var result = await _controller.CreateTask(taskPayload);
+
+        var createdAt = Assert.IsType<CreatedResult>(result);
+        var returnedValue = Assert.IsType<models.Task>(createdAt.Value);
+        Assert.Equal(createdTask.Id, returnedValue.Id);
+    }
+
+    [Fact]
+    public async void CreateTask_ReturnsBadRequest_WhenPayloadIsNull()
+    { 
+        var result = await _controller.CreateTask(null);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(400, badRequest.StatusCode);
     }
 }
