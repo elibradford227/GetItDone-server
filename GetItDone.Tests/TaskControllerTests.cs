@@ -82,4 +82,13 @@ public class TaskControllerTests
         var returnedValue = Assert.IsType<models.Task>(createdAt.Value);
         Assert.Equal(createdTask.Id, returnedValue.Id);
     }
+
+    [Fact]
+    public async void CreateTask_ReturnsBadRequest_WhenPayloadIsNull()
+    { 
+        var result = await _controller.CreateTask(null);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal(400, badRequest.StatusCode);
+    }
 }
