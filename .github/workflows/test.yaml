@@ -26,4 +26,4 @@ jobs:
         run: dotnet build --no-restore -c Release
 
       - name: Test
-        run: dotnet test tests/GetItDone.Tests/GetItDone.Tests.csproj --no-build -c Release
+        run: dotnet test GetItDone.sln --no-build -c Release
