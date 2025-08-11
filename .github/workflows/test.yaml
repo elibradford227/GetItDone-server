@@ -25,5 +25,6 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
-      - name: Test
-        run: dotnet test GetItDone.sln --no-build -c Release
+      - name: Test 
+        working-directory: GetItDone.Tests
+        run: dotnet test -c Release 
