@@ -9,6 +9,7 @@ using GetItDone.services;
 using GetItDone.Infrastructure;
 using GetItDone.repositories;
 using AutoMapper;
+using GetItDone.Utils;
 
 
 var builder = WebApplication.CreateBuilder(args);
