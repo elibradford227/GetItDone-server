@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using GetItDone.Utils;
 
 namespace GetItDone.Controllers
 {
@@ -97,6 +98,8 @@ namespace GetItDone.Controllers
                 return BadRequest(new { message = "Task Data must be sent" });
             }
 
+            taskPayload.Title = TaskNormalizer.NormalizeTitle(taskPayload.Title);
+
             models.Task newTask = await _taskService.CreateTaskAsync(taskPayload);
 
             return Created($"/api/task/{newTask.Id}", newTask);
@@ -125,6 +128,8 @@ namespace GetItDone.Controllers
                     return statusValidation;
                 }
             }
+
+            taskPayload.Title = TaskNormalizer.NormalizeTitle(taskPayload.Title);
 
             models.Task TaskToUpdate = await _taskService.UpdateTaskAsync(id, taskPayload, statusPassed);
 
