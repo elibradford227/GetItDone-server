@@ -7,7 +7,11 @@ namespace GetItDone.models
         [Required]
         public int Id { get; set; }
         [Required]
+
+
+        [MaxLength(120)]
         public string Title { get; set; }
+        [MaxLength(2000)]
         public string? Description { get; set; }
         [Required]
         public string Status { get; set; }

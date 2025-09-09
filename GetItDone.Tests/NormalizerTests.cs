@@ -12,11 +12,15 @@ using GetItDone.Utils;
 
 public class TaskNormalizerTests
 {
-    [Fact]
-    public void NormalizeTaskTitle()
+    [Theory]
+    [InlineData("   Fix   bug   #123   ", "Fix bug #123")]
+    [InlineData("\tHello\nWorld", "Hello World")]
+    [InlineData("SingleWord", "SingleWord")]
+    [InlineData(null, null)]
+    public void NormalizeTitle_CollapsesWhiteSpace(string? input, string? expected)
     {
-        string input = "  Fix   bug   #123  ";
         string? result = TaskNormalizer.NormalizeTitle(input);
-        Assert.Equal("Fix bug #123", result);
+        Assert.Equal(expected, result);
     }
+
 }
