@@ -17,9 +17,10 @@ public class TaskNormalizerTests
     [InlineData("\tHello\nWorld", "Hello World")]
     [InlineData("SingleWord", "SingleWord")]
     [InlineData(null, null)]
-    public void NormalizeTaskTitle(string? input, string? expected)
+    public void NormalizeTitle_CollapsesWhiteSpace(string? input, string? expected)
     {
         string? result = TaskNormalizer.NormalizeTitle(input);
         Assert.Equal(expected, result);
     }
+
 }

@@ -11,7 +11,11 @@ namespace GetItDone.Utils
         public static string? NormalizeTitle(string? title)
         {
             if (title == null) return null;
-            return Ws.Replace(title.Trim(), " ");
+
+            // remove white space
+            title = Ws.Replace(title.Trim(), " ");
+
+            return title;
         }
     }
 }
