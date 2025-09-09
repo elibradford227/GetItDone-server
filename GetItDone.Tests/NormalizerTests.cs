@@ -23,4 +23,12 @@ public class TaskNormalizerTests
         Assert.Equal(expected, result);
     }
 
+    [Theory]
+    [InlineData("Fix\u200BBug", "FixBug")] 
+    [InlineData("Bug\u0007", "Bug")]       
+    public void NormalizeTitle_StripsInvisibleCharacters(string input, string expected)
+    {
+        string? result = TaskNormalizer.NormalizeTitle(input);
+        Assert.Equal(expected, result);
+    }
 }
