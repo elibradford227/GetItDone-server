@@ -126,7 +126,7 @@ namespace GetItDone.Controllers
                 if (statusValidation != null)
                 {
                     return statusValidation;
-                }
+                } 
             }
 
             taskPayload.Title = TaskNormalizer.NormalizeTitle(taskPayload.Title);
