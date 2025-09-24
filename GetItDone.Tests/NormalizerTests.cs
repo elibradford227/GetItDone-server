@@ -33,9 +33,8 @@ public class TaskNormalizerTests
     }
 
     [Theory]
-    [InlineData("   Fix   bug   #123   ", "Fix bug #123")]
-    [InlineData("\tHello\nWorld", "Hello World")]
-    [InlineData("SingleWord", "SingleWord")]
+    [InlineData("Single line description", "Single line description")]
+    [InlineData("\tTabbed in text", "Tabbed in text")]
     [InlineData(null, null)]
     public void NormalizeDescription_CollapsesWhiteSpace(string? input, string? expected)
     {

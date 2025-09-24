@@ -24,5 +24,19 @@ namespace GetItDone.Utils
 
             return title;
         }
+
+        public static string? NormalizeDescription(string? description)
+        { 
+            if (description == null) return null;
+
+            description = description.Trim();
+
+            description = description.Normalize(NormalizationForm.FormC);
+
+            description = Regex.Replace(description, @"[\p{Cc}\p{Cf}]", "");
+
+            return description;
+
+        }
     }
 }
