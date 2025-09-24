@@ -1,7 +1,7 @@
 ﻿# GetItDone-server
 
 <h2>Quick Start</h2>
-
+<p>This project runs entirely in Docker. Follow the steps below to get started:</p>
 <ol>
   <li>Clone the repository:</li>
 </ol>
@@ -30,3 +30,4 @@ cd GetItDone-server/GetItDone
 
 <pre><code>http://localhost:5000/swagger
 </code></pre>
+
