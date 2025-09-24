@@ -71,6 +71,26 @@ builder.Services.AddDbContext<GetItDoneDbContext>(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<GetItDoneDbContext>();
+    var retries = 5;
+    while (retries > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Npgsql.NpgsqlException)
+        {
+            retries--;
+            Thread.Sleep(2000); // wait 2 seconds before retry
+        }
+    }
+}
+
+
 // experimenting with preloading queries to reduce initial response time after app startup
 
 using (IServiceScope scope = app.Services.CreateScope())
@@ -80,11 +100,15 @@ using (IServiceScope scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseCors("AllowLocalhost3000");
 
