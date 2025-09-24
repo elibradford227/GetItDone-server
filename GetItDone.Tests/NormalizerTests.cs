@@ -31,4 +31,15 @@ public class TaskNormalizerTests
         string? result = TaskNormalizer.NormalizeTitle(input);
         Assert.Equal(expected, result);
     }
+
+    [Theory]
+    [InlineData("   Fix   bug   #123   ", "Fix bug #123")]
+    [InlineData("\tHello\nWorld", "Hello World")]
+    [InlineData("SingleWord", "SingleWord")]
+    [InlineData(null, null)]
+    public void NormalizeDescription_CollapsesWhiteSpace(string? input, string? expected)
+    {
+        string? result = TaskNormalizer.NormalizeDescription(input);
+        Assert.Equal(expected, result);
+    }
 }
