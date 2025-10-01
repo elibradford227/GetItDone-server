@@ -10,5 +10,6 @@ namespace GetItDone.models.DTOs
         public TaskDTO Task { get; set; }
         public string UserId { get; set; }
         public UserDTO User { get; set; }
+        public DateTime AssignedAt { get; set; }
     }
 }
