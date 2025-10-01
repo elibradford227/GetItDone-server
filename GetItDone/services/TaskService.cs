@@ -75,11 +75,6 @@ namespace GetItDone.services
 
             ICollection<UserTask> relatedUserTasks = await _userTaskRepository.GetRelatedUserTasks(id);
 
-            if (relatedUserTasks.Any())
-            {
-                await _userTaskRepository.RemoveRelatedUserTasks(relatedUserTasks);
-            }
-
             return await _taskRepository.DeleteTaskAsync(task);
         }
 
