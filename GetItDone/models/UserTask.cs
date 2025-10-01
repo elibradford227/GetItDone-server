@@ -16,5 +16,6 @@ namespace GetItDone.models
         public string UserId { get; set; }
         [Required]
         public User User { get; set; }
+        public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
     }
 }
