@@ -73,8 +73,6 @@ namespace GetItDone.services
                 return null;
             }
 
-            ICollection<UserTask> relatedUserTasks = await _userTaskRepository.GetRelatedUserTasks(id);
-
             return await _taskRepository.DeleteTaskAsync(task);
         }
 
