@@ -56,6 +56,18 @@ namespace GetItDone.repositories
               return taskQuery;
         }
 
+        public IQueryable GetPaginatedTasks(int pageNumber, int pageSize, string? status = null)
+        {
+            IQueryable<TaskDTO> query = GetBaseTaskQuery();
+
+            if (!string.IsNullOrEmpty(status)) query = query.Where(t => t.Status == status);
+
+            return query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+        }
+
         public async Task<models.Task> UpdateTaskStatusAsync(models.Task task)
         {
             _dbContext.Tasks.Update(task);
