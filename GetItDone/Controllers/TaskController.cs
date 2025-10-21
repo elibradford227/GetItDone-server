@@ -29,26 +29,10 @@ namespace GetItDone.Controllers
             _taskService = taskService;
         }
 
-        //[HttpGet("all")]
-        //public async Task<IActionResult> GetAllTasks()
-        //{
-        //    IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
-
-        //    if (!tasks.Any())
-        //    {
-        //        return NotFound(new { message = "No tasks were found" });
-        //    }
-
-        //    return Ok(tasks);
-        //}
-
         [HttpGet]
         public async Task<IActionResult> GetAllPaginatedTasks([FromQuery] TaskQueryParams query)
         {
             IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync(query.PageNumber, query.PageSize, query.Status);
-
-            //int pageNumber = query.PageNumber;
-            //int pageSize = query.PageSize;
 
             if (!tasks.Any())
             {
