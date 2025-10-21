@@ -33,9 +33,11 @@ public class TaskControllerTests
           new TaskDTO { Id = 2, Title = "Test 2" },
         };
 
-        _mockService.Setup(s => s.GetAllTasksAsync()).ReturnsAsync(expectedTasks);
+        _mockService.Setup(s => s.GetAllTasksAsync(1, 10, null)).ReturnsAsync(expectedTasks);
 
-        var result = await _controller.GetAllTasks();
+        var queryParams = new TaskController.TaskQueryParams { PageNumber = 1, PageSize = 10 };
+
+        var result = await _controller.GetAllPaginatedTasks(queryParams);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         var tasks = Assert.IsAssignableFrom<IEnumerable<TaskDTO>>(okResult.Value);
