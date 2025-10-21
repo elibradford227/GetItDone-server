@@ -12,7 +12,7 @@ namespace GetItDone.services
     public interface ITaskService
     {
         Task<models.Task?> RemoveTaskAsync(int id);
-        Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync();
+        Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync(int pageNumber, int pageSize, string? status);
         Task<TaskDTO?> GetSingleTaskAsync(int id);
         Task<models.Task?> UpdateTaskStatusAsync(int id, string newStatus);
         Task<models.Task> CreateTaskAsync(TaskPayload taskPayload);
@@ -35,9 +35,14 @@ namespace GetItDone.services
             _dbContext = dbContext;
         }
 
-        public async Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync()
+        //public async Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync()
+        //{
+        //    return await _taskRepository.GetBaseTaskQuery().ToListAsync();
+        //}
+
+        public async Task<IReadOnlyList<TaskDTO>> GetAllTasksAsync(int pageNumber, int pageSize, string? status = null)
         {
-            return await _taskRepository.GetBaseTaskQuery().ToListAsync();
+            return await _taskRepository.GetPaginatedTasks(pageNumber, pageSize, status).ToListAsync();
         }
 
         public async Task<IReadOnlyList<TaskDTO>> GetAllTasksByStatusAsync(string status)

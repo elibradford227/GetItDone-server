@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GetItDone.Migrations
 {
     [DbContext(typeof(GetItDoneDbContext))]
-    [Migration("20251001030103_AssignedAtOnUserTasks")]
-    partial class AssignedAtOnUserTasks
+    [Migration("20251021195236_AssignedAtColumn")]
+    partial class AssignedAtColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
