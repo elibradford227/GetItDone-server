@@ -12,6 +12,7 @@ namespace GetItDone.repositories
     {
         Task<models.Task?> GetTaskById(int id);
         IQueryable<TaskDTO> GetBaseTaskQuery();
+        IQueryable<TaskDTO> GetPaginatedTasks(int pageNumber, int pageSize, string? status);
         Task<models.Task> UpdateTaskStatusAsync(models.Task task);
         Task<models.Task?> DeleteTaskAsync(models.Task TaskToDelete);
         Task<models.Task?> CreateTask(models.Task task);
@@ -56,7 +57,7 @@ namespace GetItDone.repositories
               return taskQuery;
         }
 
-        public IQueryable GetPaginatedTasks(int pageNumber, int pageSize, string? status = null)
+        public IQueryable<TaskDTO> GetPaginatedTasks(int pageNumber, int pageSize, string? status = null)
         {
             IQueryable<TaskDTO> query = GetBaseTaskQuery();
 

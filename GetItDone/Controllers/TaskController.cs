@@ -29,10 +29,10 @@ namespace GetItDone.Controllers
             _taskService = taskService;
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllTasks()
+        [HttpGet]
+        public async Task<IActionResult> GetAllPaginatedTasks([FromQuery] TaskQueryParams query)
         {
-            IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync();
+            IReadOnlyList<TaskDTO> tasks = await _taskService.GetAllTasksAsync(query.PageNumber, query.PageSize, query.Status);
 
             if (!tasks.Any())
             {
@@ -174,15 +174,12 @@ namespace GetItDone.Controllers
         {
             public string UserId { get; set; }
         }
-        //public class TaskPayload
-        //{
-        //    public string Title { get; set; }
-        //    public string? Description { get; set; }
-        //    public string? Status { get; set; }
-        //    public string? Ownerid { get; set; }
-        //    public DateTime CreatedDate { get; set; }
-        //    public DateTime? DueDate { get; set; }
-        //    public List<AssigneePayload> Assignees { get; set; }
-        //}
+
+        public class TaskQueryParams
+        {
+            public int PageNumber { get; set; } = 1;
+            public int PageSize { get; set; } = 10;
+            public string? Status { get; set; } = null;
+        }
     }
 }
