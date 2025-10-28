@@ -93,4 +93,22 @@ public class TaskControllerTests
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal(400, badRequest.StatusCode);
     }
+
+    [Fact]
+    public async void UpdateTaskStatusReturnsOk()
+    {
+        int id = 1;
+        string newStatus = "Complete";
+        var request = new TaskController.TaskRequest { Status = "Complete" };
+        var expectedTask = new models.Task { Id = id, Status = newStatus };
+
+        _mockService.Setup(s => s.UpdateTaskStatusAsync(id, newStatus))
+            .ReturnsAsync(expectedTask);
+
+        var result = await _controller.UpdateTaskStatus(id, request);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnedTask = Assert.IsType<models.Task>(okResult.Value);
+        Assert.Equal(newStatus, returnedTask.Status);
+    }
 }
