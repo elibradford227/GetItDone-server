@@ -484,3 +484,7 @@ $RECYCLE.BIN/
 *.swp
 
 .env
+
+TestResults/
+coverage.cobertura.xml
+coverage-report/
