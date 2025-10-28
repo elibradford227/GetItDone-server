@@ -63,7 +63,6 @@ namespace GetItDone.repositories
         public async System.Threading.Tasks.Task AddUserTaskAsync(UserTask newUserTask)
         {
             _dbContext.UserTasks.Add(newUserTask);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }
