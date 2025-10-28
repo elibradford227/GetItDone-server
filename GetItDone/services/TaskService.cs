@@ -159,7 +159,7 @@ namespace GetItDone.services
                         Task = task
                     };
 
-                    _dbContext.UserTasks.Add(newUserTask);
+                    await _userTaskRepository.AddUserTaskAsync(newUserTask);
                 }
             }
         }

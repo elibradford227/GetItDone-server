@@ -13,6 +13,7 @@ namespace GetItDone.repositories
         Task<List<UserTaskDTO>> GetUsersTasks(string userId);
         bool CheckUserTaskExists(int taskId, string userId);
         Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId);
+        System.Threading.Tasks.Task AddUserTaskAsync(UserTask newUserTask);
         }
     public class UserTaskRepository : IUserTaskRepository
     {
@@ -57,6 +58,12 @@ namespace GetItDone.repositories
             return await _dbContext.UserTasks
                .Where(t => t.TaskId == taskId)
                .ToListAsync();
+        }
+
+        public async System.Threading.Tasks.Task AddUserTaskAsync(UserTask newUserTask)
+        {
+            _dbContext.UserTasks.Add(newUserTask);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
