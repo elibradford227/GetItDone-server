@@ -50,6 +50,7 @@ namespace GetItDone.repositories
 
         public bool CheckUserTaskExists(int taskId, string userId)
         {
+            Console.WriteLine($"UserTasks is null? {_dbContext.UserTasks == null}");
             return _dbContext.UserTasks.Any(ut => ut.TaskId == taskId && ut.UserId == userId);
         }
 

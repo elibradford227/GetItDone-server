@@ -15,41 +15,37 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using static GetItDone.Controllers.TaskController;
+using Microsoft.AspNetCore.Identity;
 
 public class IntegrationTests
 {
-    private readonly Mock<IMapper> _mockMapper;
-    private readonly TaskService _taskService;
-    private readonly Mock<ITaskRepository> _mockTaskRepo;
-    private readonly Mock<IUserTaskRepository> _mockUserTaskRepo;
-    private readonly Mock<IUserRepository> _mockUserRepo;
     private readonly GetItDoneDbContext _dbContext;
+    private readonly TaskRepository _taskRepo;
+    private readonly UserTaskRepository _userTaskRepo;
+    private readonly UserRepository _userRepo;
+    private readonly TaskService _taskService;
+    private readonly UserManager<User> _userManager;
+    private readonly IMapper _mapper;
 
 
     public IntegrationTests()
     {
-        _mockMapper = new Mock<IMapper>();
-        _mockTaskRepo = new Mock<ITaskRepository>();
-        _mockUserTaskRepo = new Mock<IUserTaskRepository>();
-        _mockUserRepo = new Mock<IUserRepository>();
-
         var options = new DbContextOptionsBuilder<GetItDoneDbContext>()
             .UseInMemoryDatabase("IntegrationTests")
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
         _dbContext = new GetItDoneDbContext(options);
-        _taskService = new TaskService(
-            _mockUserTaskRepo.Object,
-            _mockTaskRepo.Object,
-            _dbContext,
-            _mockUserRepo.Object);
+        _userTaskRepo = new UserTaskRepository(_dbContext, _userManager, _mapper);
+        _taskRepo = new TaskRepository(_dbContext, _userManager, _mapper, _userTaskRepo);
+        _userRepo = new UserRepository(_dbContext, _userManager, _userTaskRepo, _mapper);
+
+        _taskService = new TaskService(_userTaskRepo, _taskRepo, _dbContext, _userRepo);
     }
 
     [Fact]
     public async void  CreateTaskAsync_CreatesTaskAndCommitsTransaction()
     {
-        // Arrange
         var payload = new TaskPayload
         {
             Title = "New Task",
@@ -64,19 +60,16 @@ public class IntegrationTests
             }
         };
 
-        _mockUserTaskRepo
-            .Setup(r => r.CheckUserTaskExists(It.IsAny<int>(), It.IsAny<string>()))
-            .Returns(false);
-
-        _mockUserTaskRepo
-            .Setup(r => r.AddUserTaskAsync(It.IsAny<UserTask>()))
-            .Callback<UserTask>(ut => _dbContext.UserTasks.Add(ut));
-
         var result = await _taskService.CreateTaskAsync(payload);
+
+        var savedTask = await _dbContext.Tasks
+            .Include(t => t.Assignees)
+            .FirstOrDefaultAsync(t => t.Id == result.Id);
 
         Assert.NotNull(result);
         Assert.Equal("New Task", result.Title);
         Assert.Equal(1, _dbContext.Tasks.Count());
         Assert.Equal(2, _dbContext.UserTasks.Count());
+        Assert.All(savedTask.Assignees, ut => Assert.Equal(savedTask.Id, ut.TaskId));
     }
 }

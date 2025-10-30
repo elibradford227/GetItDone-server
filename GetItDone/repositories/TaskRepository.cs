@@ -21,14 +21,10 @@ namespace GetItDone.repositories
     public class TaskRepository : ITaskRepository
     {
         private readonly GetItDoneDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
-        private readonly IUserTaskRepository _userTaskRepository;
 
         public TaskRepository(GetItDoneDbContext dbContext, UserManager<User> userManager, IMapper mapper, IUserTaskRepository userTaskRepository)
         {
             _dbContext = dbContext;
-            _userManager = userManager;
-            _userTaskRepository = userTaskRepository;
         }
 
         public IQueryable<TaskDTO> GetBaseTaskQuery()
