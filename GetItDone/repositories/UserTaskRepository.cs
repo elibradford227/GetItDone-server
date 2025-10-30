@@ -13,7 +13,7 @@ namespace GetItDone.repositories
         Task<List<UserTaskDTO>> GetUsersTasks(string userId);
         bool CheckUserTaskExists(int taskId, string userId);
         Task<ICollection<UserTask>> GetRelatedUserTasks(int taskId);
-        System.Threading.Tasks.Task AddUserTaskAsync(UserTask newUserTask);
+        void AddUserTaskAsync(UserTask newUserTask);
         }
     public class UserTaskRepository : IUserTaskRepository
     {
@@ -60,7 +60,7 @@ namespace GetItDone.repositories
                .ToListAsync();
         }
 
-        public async System.Threading.Tasks.Task AddUserTaskAsync(UserTask newUserTask)
+        public void AddUserTaskAsync(UserTask newUserTask)
         {
             _dbContext.UserTasks.Add(newUserTask);
         }
