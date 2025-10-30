@@ -18,14 +18,12 @@ namespace GetItDone.repositories
     public class UserRepository : IUserRepository
     {
         private readonly GetItDoneDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
         private readonly IUserTaskRepository _userTaskRepository;
         private readonly IMapper _mapper;
 
         public UserRepository(GetItDoneDbContext dbContext, UserManager<User> userManager, IUserTaskRepository userTaskRepository, IMapper mapper)
         {
             _dbContext = dbContext;
-            _userManager = userManager;
             _userTaskRepository = userTaskRepository;
             _mapper = mapper;
         }
