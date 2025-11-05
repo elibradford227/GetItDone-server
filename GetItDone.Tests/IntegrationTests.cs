@@ -44,7 +44,7 @@ public class IntegrationTests
     }
 
     [Fact]
-    public async void  CreateTaskAsync_CreatesTaskAndCommitsTransaction()
+    public async void  CreateTaskAsync_CreatesTask()
     {
         var payload = new TaskPayload
         {
