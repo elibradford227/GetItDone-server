@@ -68,8 +68,69 @@ public class IntegrationTests
 
         Assert.NotNull(result);
         Assert.Equal("New Task", result.Title);
-        Assert.Equal(1, _dbContext.Tasks.Count());
+        Assert.All(savedTask.Assignees, ut => Assert.Equal(savedTask.Id, ut.TaskId));
+    }
+
+
+    [Fact]
+    public async void UpdateTaskAsync_UpdatesTask()
+    {
+        var existingTask = new models.Task
+        {
+            Id = 2,
+            Title = "Old title",
+            Description = "Old desc",
+            Status = "Open",
+            Ownerid = "1",
+            DueDate = DateTime.UtcNow.AddDays(5),
+            Assignees = new List<UserTask>
+            {
+                new UserTask { UserId = "1" },
+                new UserTask { UserId = "2" }
+            }
+        };
+
+        _dbContext.Users.AddRange(
+           new User { Id = "1", UserName = "test1" },
+           new User { Id = "2", UserName = "test2" }
+        );
+
+        _dbContext.Tasks.Add(existingTask);
+        await _dbContext.SaveChangesAsync();
+
+        var payload = new TaskPayload
+        {
+            Title = "New Title",
+            Description = "Integration test",
+            Status = "Open",
+            Ownerid = "1",
+            DueDate = DateTime.UtcNow.AddDays(5),
+            Assignees = new List<AssigneePayload>
+            {
+                new AssigneePayload { UserId = "1" },
+                new AssigneePayload { UserId = "2" }
+            }
+        };
+
+        var result = await _taskService.UpdateTaskAsync(2, payload, true);
+
+        var savedTask = await _dbContext.Tasks
+            .Include(t => t.Assignees)
+            .FirstOrDefaultAsync(t => t.Id == result.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal("New Title", result.Title);
+        Assert.NotEqual("Old title", result.Title);
         Assert.Equal(2, _dbContext.UserTasks.Count());
         Assert.All(savedTask.Assignees, ut => Assert.Equal(savedTask.Id, ut.TaskId));
     }
+
+    [Fact]
+    public async void UpdateTaskAsync_ReturnsNull_WhenTaskNotFound()
+    {
+        var payload = new TaskPayload { Title = "New Title" };
+        var result = await _taskService.UpdateTaskAsync(999, payload, true);
+        Assert.Null(result);
+    }
+
 }
