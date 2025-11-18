@@ -1,5 +1,8 @@
 ﻿# GetItDone-server
 
+<h2>ERD</h2>
+<img width="777" height="551" alt="GetItDoneERD" src="https://github.com/user-attachments/assets/afa3e072-7f10-4786-9715-0f9f624c4c71" />
+
 <h2>Quick Start</h2>
 <p>This project runs entirely in Docker. Follow the steps below to get started:</p>
 <ol>
@@ -30,4 +33,5 @@ cd GetItDone-server/GetItDone
 
 <pre><code>http://localhost:5000/swagger
 </code></pre>
+
 
