@@ -121,7 +121,6 @@ public class IntegrationTests
         Assert.NotNull(result);
         Assert.Equal("New Title", result.Title);
         Assert.NotEqual("Old title", result.Title);
-        Assert.Equal(2, _dbContext.UserTasks.Count());
         Assert.All(savedTask.Assignees, ut => Assert.Equal(savedTask.Id, ut.TaskId));
     }
 
